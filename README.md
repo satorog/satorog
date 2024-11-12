@@ -1,12 +1,66 @@
-- 👋 Hi, I’m @satorog
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
+package inaka.com.tinytask;
 
-<!---
-satorog/satorog is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+public class TinyTask<T> {
+
+    private static TinyTask instance = null;
+    private GenericTask<T> genericTask;
+    private Something<T> something;
+    private DoThis<T> callback;
+
+    private TinyTask(Something<T> something) {
+        this.something = something;
+    }
+
+    private TinyTask(DoThis<T> callback) {
+        this.callback = callback;
+    }
+
+    public static TinyTask perform(Something something) {
+        if(instance == null) {
+            instance = new TinyTask(something);
+        } else {
+            instance.something = something;
+        }
+        return instance;
+    }
+
+    public TinyTask whenDone(DoThis<T> callback) {
+        if(instance == null) {
+            instance = new TinyTask<>(callback);
+        } else {
+            instance.callback = callback;
+        }
+        return instance;
+    }
+
+    public Something<T> getSomething() {
+        return something;
+    }
+
+    public DoThis<T> getCallback() {
+        return callback;
+    }
+
+    public void go() {
+        if(genericTask == null) {
+            genericTask = new GenericTask<>(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                genericTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                genericTask.execute();
+            }
+        }
+    }
+
+    public void cancel() {
+        if(genericTask != null) {
+            genericTask.cancel(true);
+        }
+    }
+
+    public boolean isCancelled() {
+        return genericTask.isCancelled();
+    }
+}
+
+
